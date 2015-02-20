@@ -3,7 +3,6 @@ import dynmodel
 n_helpers = 2
 helper_states = 5
 
-
 def phi(e, p, *helpers):
     if p > 0:
         # can't be pregnant at menopause
