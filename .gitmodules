@@ -1,0 +1,3 @@
+[submodule "submodules/dynmodel"]
+	path = submodules/dynmodel
+	url = git@github.com:gregbaker/dynmodel.git
