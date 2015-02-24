@@ -1,7 +1,8 @@
 import dynmodel
 
-n_helpers = 2
+n_helpers = 3
 helper_states = 5
+tmax = 30*12/2
 
 def phi(e, p, *helpers):
     if p > 0:
@@ -16,6 +17,8 @@ def foraging_results(e, p, helpers):
     workers = 1 + sum(1 for h in helpers if h==(helper_states-1))
     dependants = 1 + sum(1 for h in helpers if h>0)
     surplus = workers*2.5 - dependants
+    if p > 0:
+        surplus = surplus - 0.5
     # what's the gain for each person because of it?
     food_gain = surplus * 0.1
 
@@ -98,7 +101,6 @@ def possibilities(model, t, e, p, *helpers):
 
     return possib
 
-tmax = 30*12/2
 
 def buildmodel():
     varE = dynmodel.Variable(10, "energy", continuous=True)
@@ -118,16 +120,20 @@ def generate_arrays():
     model.fill_terminal_quality()
     model.fill_quality(max)
 
-def print_step(model, dec, descr, t, *state):
-    print dec, descr, t, state
+def print_step(model, dec, descr, t, e, p, *helpers):
+    print dec, descr, t, e, p, helpers
 
+def final_results(model, dec, descr, t, e, p, *helpers):
+    print "I'm done"
+    
 def monte():
     model = buildmodel()
     model.read_files()
 
     model.monte_carlo_run(
-        start=(0, 4, 0, 0, 0),
+        start=(0, 4, 0, 0, 0, 0),
         report_step=print_step,
+        report_final=final_results,
     )
 
 def profile():
