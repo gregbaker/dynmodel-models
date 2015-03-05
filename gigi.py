@@ -146,6 +146,14 @@ def monte():
         report_final=final_results,
     )
 
+def explore_arrays():
+    model = buildmodel()
+    model.read_files()
+    
+    arr = model.quality_subarray()
+    subarr = arr[tmax-10, :, 0, :, 0, 0] # (t, e, p, h1, h2, ...), number or : for "all"
+    subarr.output("output.csv")
+
 def profile():
     import cProfile, pstats
     cProfile.run('main()', 'restats')
@@ -156,7 +164,7 @@ def profile():
 if __name__ == '__main__':
     generate_arrays()
     monte()
-    #profile()
+#    explore_arrays()
 
 
 
