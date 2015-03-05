@@ -1,31 +1,41 @@
 import dynmodel
 
-n_helpers = 3
+# input number of helpers, number of energy/maturity states each helper has, and total time in months
+n_helpers = 5
 helper_states = 5
 tmax = 30*12/2
 
+# this is the terminal fitness function (phi) 
 def phi(e, p, *helpers):
     if p > 0:
         # can't be pregnant at menopause
         return -1
     else:
-        return sum(1 for h in helpers if h>0)
+        # more helpers increases fitness, also goes up if energy state above certain threshold 
+        helper_fitness = sum(1 for h in helpers if h>0)
+        if e>5:
+            maternal_fitness = 1
+        else:
+            maternal_fitness = 0
+        return helper_fitness + maternal_fitness
 
 
 def foraging_results(e, p, helpers):
     # how many people are helping here?
-    workers = 1 + sum(1 for h in helpers if h==(helper_states-1))
-    dependants = 1 + sum(1 for h in helpers if h>0)
+    workers = 1 + sum(1 for h in helpers if h==(helper_states>4))
+    # how many people do you need to feed?
+    dependants = 1 + sum(1 for h in helpers if h==(helper_states<4))
     surplus = workers*2.5 - dependants
+    # cost of remaining pregnant     
     if p > 0:
         surplus = surplus - 0.5
     # what's the gain for each person because of it?
-    food_gain = surplus * 0.1
+    food_gain = surplus / (h+1)
 
     return (
         e+food_gain,
         tuple((h+food_gain if h else 0) for h in helpers),
-        surplus
+????        surplus
     )
 
 def possibilities(model, t, e, p, *helpers):
@@ -37,7 +47,7 @@ def possibilities(model, t, e, p, *helpers):
         return possib
 
     e, helpers, surplus = foraging_results(e, p, helpers)
-    note = ' (%s)' % (surplus)
+????    note = ' (%s)' % (surplus)
 
     if p == 9:
         # give birth: a 0 helper becomes a 1 helper
@@ -131,7 +141,7 @@ def monte():
     model.read_files()
 
     model.monte_carlo_run(
-        start=(0, 4, 0, 0, 0, 0),
+        start=(0, 4, 0) + ((0,) * n_helpers),
         report_step=print_step,
         report_final=final_results,
     )
