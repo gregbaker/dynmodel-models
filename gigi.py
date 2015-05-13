@@ -6,7 +6,8 @@ n_helpers = 2
 helper_states = 5
 tmax = 30*12/2
 
-
+#mortality is set to constant rate for now      
+mortality = 0.01
 
 # this is the terminal fitness function (phi) 
 def phi(e, p, *helpers):
@@ -82,18 +83,20 @@ def possibilities(model, t, e, p, *helpers):
         possib.add(
             decision=0,
             qualgain=1,
-            prob=1.0,
+            prob=1.0-mortality,
             nextstate=(t+1, e-1, p+1) + helpers,
             descr="give birth" + note )
+        possib.otherwise(0, qual=0, descr='got eaten')
             
     elif 9 < p < 21:
         #PA counter, PA is at least 1 year (12 months)
             possib.add(
                 decision=0,
                 qualgain=0.0,
-                prob=1.0,
+                prob=1.0-mortality,
                 nextstate=(t+1, e-1, p+1) + helpers,
                 descr="PA" + note )
+            possib.otherwise(0, qual=0, descr='got eaten')
                 
     elif p == 21:
         
@@ -108,9 +111,10 @@ def possibilities(model, t, e, p, *helpers):
             possib.add(
                 decision=0,
                 qualgain=0.0,
-                prob=1.0,
+                prob=1.0-mortality,
                 nextstate=(t+1, e-1, 0) + helpers,
                 descr="end PA" + note )
+            possib.otherwise(0, qual=0, descr='got eaten')
         
                 
     elif 0 < p < 9:
@@ -120,25 +124,28 @@ def possibilities(model, t, e, p, *helpers):
             possib.add(
                 decision=0,
                 qualgain=0.0,
-                prob=1.0,
+                prob=1.0-mortality,
                 nextstate=(t+1, e-1, 0) + helpers,
                 descr="pregnancy terminated" + note )
+            possib.otherwise(0, qual=0, descr='got eaten')
         else:
             # be pregnant
             possib.add(
                 decision=0,
                 qualgain=0.0,
-                prob=1.0,
+                prob=1.0-mortality,
                 nextstate=(t+1, e-1, p+1) + helpers,
                 descr="stay pregnant" + note )
+            possib.otherwise(0, qual=0, descr='got eaten')
 
     else:
         possib.add(
             decision=0,
             qualgain=0,
-            prob=1.0,
+            prob=1.0-mortality,
             nextstate=(t+1, e, 0) + helpers,
             descr="abstain" + note )
+        possib.otherwise(0, qual=0, descr='got eaten')
         
         #calculates fecundability: p(getting pregnant per month that she is cycling)
         fecund = -0.00027*t+0.2 
@@ -146,15 +153,18 @@ def possibilities(model, t, e, p, *helpers):
         possib.add(
             decision=1,
             qualgain=0,
-            prob=fecund,
+            prob=fecund-mortality,
             nextstate=(t+1, e, 1) + helpers,
             descr="get pregnant" + note )
+        possib.otherwise(0, qual=0, descr='got eaten')
+        
         possib.add(
             decision=1,
             qualgain=0,
-            prob=1-fecund,
+            prob=1-fecund-mortality,
             nextstate=(t+1, e, 0) + helpers,
             descr="didn't get pregnant" + note )
+        possib.otherwise(0, qual=0, descr='got eaten')
 
     return possib
 
